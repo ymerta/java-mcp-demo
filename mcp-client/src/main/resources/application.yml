@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+# true yapilirsa baslanigicta otomatik demo calisir (McpDemoRunner)
+# false iken sadece REST API uzerinden Postman ile test edilir
+demo:
+  auto-run: false
+
+spring:
+  application:
+    name: mcp-tutorial-client
+
+  ai:
+    mcp:
+      client:
+        name: tutorial-mcp-client
+        version: 1.0.0
+        type: SYNC
+        request-timeout: 30s
+        toolcallback:
+          enabled: true
+        sse:
+          connections:
+            user-server:
+              url: http://localhost:8080

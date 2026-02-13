@@ -1,0 +1,4 @@
+rootProject.name = 'JavaMCPsdkk'
+
+include 'mcp-server'
+include 'mcp-client'

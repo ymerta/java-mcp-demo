@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: mcp-tutorial-server
+
+  # MongoDB Ayarlari - Lokal MongoDB'ye baglanir
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/mcptutorialdb
+
+  # MCP Server Ayarlari
+  ai:
+    mcp:
+      server:
+        name: user-management-mcp-server
+        version: 1.0.0
+        type: SYNC

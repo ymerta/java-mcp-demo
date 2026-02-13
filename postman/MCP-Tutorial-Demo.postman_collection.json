@@ -1,0 +1,331 @@
+{
+  "info": {
+    "name": "MCP Tutorial Demo",
+    "description": "MCP (Model Context Protocol) Tutorial projesi icin REST API demo collection'i.\n\nBu collection, MCP Server'daki 16 tool ve 3 resource'u Postman uzerinden test etmenizi saglar.\n\n**Kullanim:**\n1. MCP Server'i baslatin: `./gradlew :mcp-server:bootRun`\n2. MCP Client'i baslatin: `./gradlew :mcp-client:bootRun`\n3. Bu collection'daki endpoint'leri sirayla cagirin.\n\n**Akis:**\nPostman → REST API (Client :8081) → MCP Protocol (SSE) → MCP Server (:8080) → MongoDB",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Discovery (Kesif)",
+      "description": "MCP Server'daki tum tool'lari ve resource'lari kesfet.\nSunuma buradan baslayin: \"Server'da sunlar var\" diyerek gosterin.",
+      "item": [
+        {
+          "name": "List All Tools (16 tool)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/discovery/tools",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "discovery", "tools"]
+            },
+            "description": "MCP Server'daki tum tool'lari listeler.\n\nBeklenen sonuc: 16 tool (5 User + 6 Message + 5 Segment)"
+          }
+        },
+        {
+          "name": "List All Resources (3 resource)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/discovery/resources",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "discovery", "resources"]
+            },
+            "description": "MCP Server'daki tum resource'lari listeler.\n\nBeklenen sonuc: 3 resource (users://list, messages://list, segments://list)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User Tools",
+      "description": "Kullanici yonetimi tool'lari.\n5 tool: listele, getir, olustur, sil, departmana gore ara.",
+      "item": [
+        {
+          "name": "List All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "users"]
+            },
+            "description": "Tum kullanicilari listeler.\nMCP Tool: listAllUsers"
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/users/BURAYA_USER_ID_YAZIN",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "users", "BURAYA_USER_ID_YAZIN"]
+            },
+            "description": "ID ile kullanici detayi getirir.\nMCP Tool: getUserById\n\nNOT: Oncelikle 'List All Users' cagirip bir ID kopyalayin, sonra URL'deki 'BURAYA_USER_ID_YAZIN' kismini degistirin."
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Demo Kullanici\",\n    \"email\": \"demo@example.com\",\n    \"department\": \"R&D\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "users"]
+            },
+            "description": "Yeni kullanici olusturur.\nMCP Tool: createUser\n\nBody'deki degerleri degistirerek farkli kullanicilar olusturabilirsiniz."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/users/BURAYA_USER_ID_YAZIN",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "users", "BURAYA_USER_ID_YAZIN"]
+            },
+            "description": "Kullaniciyi siler.\nMCP Tool: deleteUser\n\nNOT: Oncelikle 'Create User' ile yeni bir kullanici olusturun, donen ID'yi kopyalayip URL'ye yapisitirin."
+          }
+        },
+        {
+          "name": "Find Users By Department (Engineering)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/users/department/Engineering",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "users", "department", "Engineering"]
+            },
+            "description": "Departmana gore kullanici arar.\nMCP Tool: findUsersByDepartment\n\nMevcut departmanlar: Engineering, Marketing, HR\nURL'deki 'Engineering' kismini degistirerek farkli departmanlari arayabilirsiniz."
+          }
+        },
+        {
+          "name": "[Resource] All Users JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/resources/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resources", "users"]
+            },
+            "description": "MCP Resource: users://list\n\nTum kullanicilari JSON formatta dondurur.\nTool'lardan farki: Resource read-only veri sunar, Tool ise aksiyon alir."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Message Tools",
+      "description": "Mesaj/Kampanya yonetimi tool'lari.\n6 tool: listele, getir, tipe gore ara, statusye gore ara, olustur, istatistik.",
+      "item": [
+        {
+          "name": "List Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "messages"]
+            },
+            "description": "Tum mesajlari/kampanyalari listeler.\nMCP Tool: listMessages\n\n10 adet dummy mesaj yuklenmistir."
+          }
+        },
+        {
+          "name": "Get Message By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/messages/BURAYA_MESSAGE_ID_YAZIN",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "messages", "BURAYA_MESSAGE_ID_YAZIN"]
+            },
+            "description": "ID ile mesaj detayi getirir.\nMCP Tool: getMessageById\n\nOncelikle 'List Messages' cagirip bir ID kopyalayin."
+          }
+        },
+        {
+          "name": "Find Messages By Type (PUSH)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/messages/type/PUSH",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "messages", "type", "PUSH"]
+            },
+            "description": "Mesaj tipine gore filtreler.\nMCP Tool: findMessagesByType\n\nGecerli tipler: PUSH, EMAIL, SMS, WEB_PUSH, IN_APP\nURL'deki 'PUSH' kismini degistirerek deneyin."
+          }
+        },
+        {
+          "name": "Find Messages By Status (FINISHED)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/messages/status/FINISHED",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "messages", "status", "FINISHED"]
+            },
+            "description": "Gonderim durumuna gore filtreler.\nMCP Tool: findMessagesByStatus\n\nGecerli statusler: DRAFT, FINISHED, STOPPED, DELETED\nURL'deki 'FINISHED' kismini degistirerek deneyin."
+          }
+        },
+        {
+          "name": "Create Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"msgType\": \"PUSH\",\n    \"title\": \"Demo Kampanya\",\n    \"message\": \"Bu bir demo kampanya mesajidir!\",\n    \"platforms\": \"ANDROID,IOS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "messages"]
+            },
+            "description": "Yeni mesaj/kampanya olusturur.\nMCP Tool: createMessage\n\nGecerli msgType: PUSH, EMAIL, SMS, WEB_PUSH, IN_APP\nGecerli platforms: ANDROID, IOS, CHROME, FIREFOX (virgul ile ayrilmis)"
+          }
+        },
+        {
+          "name": "Message Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/messages/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "messages", "stats"]
+            },
+            "description": "Mesaj istatistiklerini getirir.\nMCP Tool: getMessageStats\n\nTipe gore dagilim (PUSH: 4, EMAIL: 2, ...)\nStatusye gore dagilim (FINISHED: 6, DRAFT: 2, ...)"
+          }
+        },
+        {
+          "name": "[Resource] All Messages JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/resources/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resources", "messages"]
+            },
+            "description": "MCP Resource: messages://list\n\nTum mesajlari JSON formatta dondurur."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Segment Tools",
+      "description": "Kullanici segmenti yonetimi tool'lari.\n5 tool: listele, koda gore getir, statusye gore ara, aktifler, istatistik.",
+      "item": [
+        {
+          "name": "List Segments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/segments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "segments"]
+            },
+            "description": "Tum segmentleri listeler.\nMCP Tool: listSegments\n\n8 adet dummy segment yuklenmistir."
+          }
+        },
+        {
+          "name": "Get Segment By Code (aktif)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/segments/code/aktif",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "segments", "code", "aktif"]
+            },
+            "description": "5 harfli segment kodu ile detay getirir.\nMCP Tool: getSegmentByCode\n\nMevcut kodlar: aktif, son7g, pshiz, emabo, andkl, mxpnl, esksg, vipms\nURL'deki 'aktif' kismini degistirerek deneyin."
+          }
+        },
+        {
+          "name": "Find Segments By Status (READY)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/segments/status/READY",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "segments", "status", "READY"]
+            },
+            "description": "Hesaplama durumuna gore filtreler.\nMCP Tool: findSegmentsByStatus\n\nGecerli statusler: READY, WAITING_CALCULATE, WAITING_DELETED\nURL'deki 'READY' kismini degistirerek deneyin."
+          }
+        },
+        {
+          "name": "Find Active Segments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/segments/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "segments", "active"]
+            },
+            "description": "Sadece aktif segmentleri getirir (silinmisleri haric tutar).\nMCP Tool: findActiveSegments\n\n7 aktif + 1 silinmis segment vardir. Bu tool sadece 7 aktifi dondurur."
+          }
+        },
+        {
+          "name": "Segment Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tools/segments/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tools", "segments", "stats"]
+            },
+            "description": "Segment istatistiklerini getirir.\nMCP Tool: getSegmentStats\n\nToplam segment, aktif/silinmis dagilim, statusye gore sayilar, toplam kullanici erisimi."
+          }
+        },
+        {
+          "name": "[Resource] All Segments JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/resources/segments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "resources", "segments"]
+            },
+            "description": "MCP Resource: segments://list\n\nTum segmentleri JSON formatta dondurur."
+          }
+        }
+      ]
+    }
+  ]
+}

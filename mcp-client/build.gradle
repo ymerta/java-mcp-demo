@@ -1,0 +1,7 @@
+dependencies {
+    // Spring AI MCP Client - SSE transport ile MCP Server'a baglanir
+    implementation 'org.springframework.ai:spring-ai-starter-mcp-client'
+
+    // Spring Boot Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+}
