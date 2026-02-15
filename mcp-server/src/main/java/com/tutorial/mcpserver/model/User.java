@@ -30,6 +30,8 @@ public class User {
 
     private String department;
 
+    private String password;  // BCrypt hashed password
+
     // Default constructor
     public User() {}
 
@@ -37,6 +39,13 @@ public class User {
         this.name = name;
         this.email = email;
         this.department = department;
+    }
+
+    public User(String name, String email, String department, String password) {
+        this.name = name;
+        this.email = email;
+        this.department = department;
+        this.password = password;
     }
 
     public String getId() {
@@ -71,9 +80,17 @@ public class User {
         this.department = department;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public String toString() {
         return String.format("User{id='%s', name='%s', email='%s', department='%s'}",
-                id, name, email, department);
+                id, name, email, department);  // Password excluded for security
     }
 }

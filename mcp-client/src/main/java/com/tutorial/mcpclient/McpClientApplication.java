@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * MCP Client uygulamasi.
  *
  * Bu uygulama basladiginda:
- * 1. application.yml'deki SSE baglanti bilgisi ile MCP Server'a baglanir
+ * 1. application.yml'deki Streamable HTTP baglanti bilgisi ile MCP Server'a baglanir
  * 2. Server'daki tool ve resource listesini ceker
  * 3. CommandLineRunner (McpDemoRunner) ile demo islemleri gerceklestirir
  *

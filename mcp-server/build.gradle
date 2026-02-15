@@ -1,7 +1,10 @@
 dependencies {
-    // Spring AI MCP Server - WebMVC transport (SSE/Streamable-HTTP)
+    // Spring AI MCP Server - WebMVC transport (Streamable HTTP)
     implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webmvc'
 
     // Spring Data MongoDB - Lokal MongoDB'ye baglanir
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // Spring Security (minimal - sadece CORS/CSRF icin)
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }

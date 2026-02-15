@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 1. MongoDB'ye baglanir (localhost:27017/mcptutorialdb)
  * 2. DataSeeder ile dummy kullanicilar yuklenir (collection bos ise)
  * 3. @Tool annotation'li methodlar MCP tool olarak kaydedilir
- * 4. SSE transport endpoint'leri aktif olur
+ * 4. Streamable HTTP transport endpoint'i aktif olur (/mcp)
  *
  * MCP Client bu sunucuya http://localhost:8080 uzerinden baglanabilir.
  */

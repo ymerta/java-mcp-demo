@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,13 +34,16 @@ public class DataSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
     private final SegmentRepository segmentRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DataSeeder(UserRepository userRepository,
                       MessageRepository messageRepository,
-                      SegmentRepository segmentRepository) {
+                      SegmentRepository segmentRepository,
+                      PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.messageRepository = messageRepository;
         this.segmentRepository = segmentRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -54,12 +58,15 @@ public class DataSeeder implements CommandLineRunner {
             log.info("Users: {} kayit mevcut, seed atlaniyor.", userRepository.count());
             return;
         }
+        // Tum kullanicilarin sifresi: "password123" (BCrypt hash'lenecek)
+        String hashedPassword = passwordEncoder.encode("password123");
+
         List<User> users = List.of(
-                new User("Ahmet Yilmaz", "ahmet@example.com", "Engineering"),
-                new User("Elif Kaya", "elif@example.com", "Marketing"),
-                new User("Mehmet Demir", "mehmet@example.com", "Engineering"),
-                new User("Zeynep Arslan", "zeynep@example.com", "HR"),
-                new User("Can Ozturk", "can@example.com", "Marketing")
+                new User("Ahmet Yilmaz", "ahmet@example.com", "Engineering", hashedPassword),
+                new User("Elif Kaya", "elif@example.com", "Marketing", hashedPassword),
+                new User("Mehmet Demir", "mehmet@example.com", "Engineering", hashedPassword),
+                new User("Zeynep Arslan", "zeynep@example.com", "HR", hashedPassword),
+                new User("Can Ozturk", "can@example.com", "Marketing", hashedPassword)
         );
         userRepository.saveAll(users);
         log.info("{} adet dummy kullanici yuklendi.", users.size());

@@ -19,7 +19,7 @@ spring:
         request-timeout: 30s
         toolcallback:
           enabled: true
-        sse:
+        streamable-http:
           connections:
             user-server:
               url: http://localhost:8080

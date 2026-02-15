@@ -1,5 +1,5 @@
 dependencies {
-    // Spring AI MCP Client - SSE transport ile MCP Server'a baglanir
+    // Spring AI MCP Client - Streamable HTTP transport ile MCP Server'a baglanir
     implementation 'org.springframework.ai:spring-ai-starter-mcp-client'
 
     // Spring Boot Web

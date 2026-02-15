@@ -17,3 +17,4 @@ spring:
         name: user-management-mcp-server
         version: 1.0.0
         type: SYNC
+        protocol: STREAMABLE
