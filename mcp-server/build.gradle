@@ -5,6 +5,12 @@ dependencies {
     // Spring Data MongoDB - Lokal MongoDB'ye baglanir
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
-    // Spring Security (minimal - sadece CORS/CSRF icin)
+    // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // Thymeleaf - Login/Consent page rendering
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // JWT token generation & validation (nimbus-jose-jwt)
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.0.2'
 }

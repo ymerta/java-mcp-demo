@@ -1,5 +1,6 @@
 server:
   port: 8080
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -18,3 +19,17 @@ spring:
         version: 1.0.0
         type: SYNC
         protocol: STREAMABLE
+
+  # Thymeleaf
+  thymeleaf:
+    cache: false
+
+  # Disable default static resource handler so .well-known paths hit controllers
+  web:
+    resources:
+      add-mappings: false
+
+# OAuth2 Authorization Server settings
+oauth2:
+  issuer: https://gauzier-healingly-avril.ngrok-free.dev
+  access-token-expiry: 3600
