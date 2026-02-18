@@ -20,16 +20,43 @@ spring:
         type: SYNC
         protocol: STREAMABLE
 
-  # Thymeleaf
-  thymeleaf:
-    cache: false
-
   # Disable default static resource handler so .well-known paths hit controllers
   web:
     resources:
       add-mappings: false
 
-# OAuth2 Authorization Server settings
-oauth2:
-  issuer: https://gauzier-healingly-avril.ngrok-free.dev
-  access-token-expiry: 3600
+  # Thymeleaf - Login page
+  thymeleaf:
+    cache: false
+
+  # OAuth2 - Tek sunucu hem Authorization Server hem Resource Server
+  security:
+    oauth2:
+      # Authorization Server config (token uretme, client registration, JWKS)
+      authorizationserver:
+        issuer-url: https://gauzier-healingly-avril.ngrok-free.dev
+        client:
+          mcp-client:
+            token:
+              access-token-time-to-live: 1h
+            registration:
+              client-id: mcp-client
+              client-secret: "{noop}secret"
+              client-authentication-methods:
+                - client_secret_basic
+                - none
+              authorization-grant-types:
+                - authorization_code
+                - client_credentials
+              redirect-uris:
+                - http://127.0.0.1:8080/authorize/oauth2/code/mcp-client
+                - http://localhost:8080/authorize/oauth2/code/mcp-client
+                - http://localhost:6274/oauth/callback
+                - http://127.0.0.1:6274/oauth/callback
+                - https://claude.ai/api/mcp/auth_callback
+                - http://127.0.0.1:8081/callback
+                - http://localhost:8081/callback
+      # Resource Server config (JWT dogrulama)
+      resourceserver:
+        jwt:
+          issuer-uri: https://gauzier-healingly-avril.ngrok-free.dev

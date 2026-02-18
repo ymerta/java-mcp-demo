@@ -1,10 +1,11 @@
 package com.tutorial.mcpserver.config;
 
-import com.tutorial.mcpserver.oauth.BearerTokenFilter;
 import com.tutorial.mcpserver.repository.UserRepository;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springaicommunity.mcp.security.authorizationserver.config.McpAuthorizationServerConfigurer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import jakarta.servlet.DispatcherType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,63 +14,93 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-/**
- * Single security filter chain that handles both:
- * - MCP endpoint (/mcp) - protected by BearerTokenFilter (which returns 401 if no token)
- * - OAuth/Login endpoints - session-based form login for authorization flow
- *
- * BearerTokenFilter.shouldNotFilter() controls which paths require Bearer tokens.
- */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }
 
+    /**
+     * Filter chain 1: Authorization Server endpoints
+     * OAuth2 token, authorize, jwks, dynamic client registration, well-known metadata
+     */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, BearerTokenFilter bearerTokenFilter) throws Exception {
+    @Order(1)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .addFilterBefore(bearerTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .securityMatcher("/oauth2/**", "/.well-known/**", "/login", "/login/**", "/error")
                 .authorizeHttpRequests(auth -> auth
-                        // Allow async and error dispatches without re-authorization
-                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
-                        // Public endpoints
-                        .requestMatchers(
-                                "/.well-known/**",
-                                "/oauth2/register",
-                                "/oauth2/token",
-                                "/oauth2/jwks",
-                                "/login",
-                                "/error"
-                        ).permitAll()
-                        // OAuth authorize and callback need authenticated user (form login)
-                        .requestMatchers("/oauth2/authorize", "/oauth2/callback").authenticated()
-                        // MCP endpoint - BearerTokenFilter handles auth, but Spring Security
-                        // also needs to allow the request through after filter sets auth context
-                        .requestMatchers("/mcp", "/mcp/**").authenticated()
-                        // Everything else is public
-                        .anyRequest().permitAll()
+                        .requestMatchers("/login", "/login/**", "/error").permitAll()
+                        .anyRequest().authenticated()
                 )
+                .with(McpAuthorizationServerConfigurer.mcpAuthorizationServer(), configurer -> {})
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/oauth2/callback", false) // false = use SavedRequest (original authorize URL)
                         .permitAll()
                 );
 
         return http.build();
+    }
+
+    /**
+     * Filter chain 2: MCP Resource Server endpoints (JWT-protected /mcp/**)
+     * Lazy JwtDecoder — issuer'a ilk request geldiginde baglanir, startup'ta degil.
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/mcp", "/mcp/**")
+                .authorizeHttpRequests(auth -> auth
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.decoder(lazyJwtDecoder()))
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable());
+
+        return http.build();
+    }
+
+    /**
+     * Lazy JwtDecoder: startup'ta issuer'a baglanmaz.
+     * Ilk JWT dogrulama istegi geldiginde JWKS endpoint'ini kesfeder ve cache'ler.
+     * Ayni sunucuda Auth Server + Resource Server oldugu icin bu gerekli.
+     */
+    private JwtDecoder lazyJwtDecoder() {
+        return new JwtDecoder() {
+            private volatile JwtDecoder delegate;
+
+            @Override
+            public org.springframework.security.oauth2.jwt.Jwt decode(String token) {
+                if (delegate == null) {
+                    synchronized (this) {
+                        if (delegate == null) {
+                            delegate = JwtDecoders.fromIssuerLocation(issuerUri);
+                        }
+                    }
+                }
+                return delegate.decode(token);
+            }
+        };
     }
 
     @Bean
@@ -83,16 +114,6 @@ public class SecurityConfig {
                     .roles("USER")
                     .build();
         };
-    }
-
-    /**
-     * Prevent Spring Boot from auto-registering BearerTokenFilter as a servlet filter.
-     */
-    @Bean
-    public FilterRegistrationBean<BearerTokenFilter> bearerTokenFilterRegistration(BearerTokenFilter filter) {
-        FilterRegistrationBean<BearerTokenFilter> registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(false);
-        return registration;
     }
 
     @Bean

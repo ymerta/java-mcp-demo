@@ -8,9 +8,18 @@ dependencies {
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // Thymeleaf - Login/Consent page rendering
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    // MCP Authorization Server (OAuth2.1 + PKCE + Dynamic Client Registration)
+    implementation 'org.springaicommunity:mcp-authorization-server:0.0.6'
 
-    // JWT token generation & validation (nimbus-jose-jwt)
-    implementation 'com.nimbusds:nimbus-jose-jwt:10.0.2'
+    // MCP Resource Server (JWT token validation, protected-resource metadata)
+    implementation 'org.springaicommunity:mcp-server-security:0.0.6'
+
+    // Spring Authorization Server
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
+
+    // Spring OAuth2 Resource Server
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+    // Thymeleaf - Login page
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }

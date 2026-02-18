@@ -147,15 +147,9 @@
             <p>OAuth 2.1 Authorization</p>
         </div>
 
-        <div th:if="${param.error != null and param.error[0] == ''}" class="error-message">
+        <div th:if="${param.error}" class="error-message">
             Invalid email or password. Please try again.
         </div>
-
-        <div th:if="${param.error != null and param.error[0] == 'no_oauth_session'}" class="error-message">
-            Session expired. Please start the authorization flow again from your MCP client.
-        </div>
-
-        <div th:if="${error}" class="error-message" th:text="${error}"></div>
 
         <form method="post" th:action="@{/login}">
             <div class="form-group">
